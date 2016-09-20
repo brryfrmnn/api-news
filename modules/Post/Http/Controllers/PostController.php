@@ -22,14 +22,18 @@ class PostController extends Controller
             'q' => 'string',
             'result_type' => 'string',
             'offset' => 'integer',
-            'category'=>'string'
+            'category'=>'string',
+            'filter' => 'string',
+            'sort'  => 'string'
         ]);
+
         if ($validator->passes()) {
             $q              = $request->q;
             $result_type    = $request->result_type;
             $offset         = $request->input('offset',10);
             $category       = $request->category;
             $filter         = $request->filter;
+            $sort           = $request->sort;
             
             $post = Post::filter($filter);
             if ($q!=null) {
@@ -38,7 +42,12 @@ class PostController extends Controller
             if ($category != null) {
                 $post->byCategory($category);
             }
+            if ($sort!=null) {
+                $post->sort($sort);
+            }
+
             $post = $post->paginate($offset)->appends($request->input());
+
             $meta['status'] = true;
             $meta['message'] = "List All Post";
             $meta['total'] = $post->total();
@@ -84,10 +93,11 @@ class PostController extends Controller
                 'title' => 'required|string',
                 'category_id' => 'integer',
                 'image' => 'image',
-                'article' => 'required|string|min:300',
+                'article' => 'required|string|min:3',
                 'writer_id' => 'required|integer',
                 'admin_id' => 'integer',
-                'editor_id' => 'integer'
+                'editor_id' => 'integer',
+                'type'  => 'string'
         ]);
         if ($validator->passes()) {
             $title      = $request->title;
@@ -97,15 +107,19 @@ class PostController extends Controller
             $admin_id   = $request->admin_id;
             $status     = 0;
             $image      = $request->file('image');
+            $type       = $request->type;
+            $url        = $request->url;
             
             try 
             {
                 //upload image to storage
-                $extension  = $image->getClientOriginalExtension();
-                $fileName      = str_replace(' ', '_', $title).uniqid();
-                $mergeFileName = $fileName.'.'.$extension;
-                $destination   = storage_path('app/public/');
-                if ($image!= null) {
+                
+                if ($image!= null && $type == 'image') {
+                    $extension  = $image->getClientOriginalExtension();
+                    $fileName      = str_replace(' ', '_', $title).uniqid();
+                    $mergeFileName = $fileName.'.'.$extension;
+                    $destination   = storage_path('app/public/');
+                    
                     $image = \Storage::put(
                         'public/'.$mergeFileName,
                         file_get_contents($request->file('image')->getRealPath())
@@ -117,16 +131,39 @@ class PostController extends Controller
                     })->save($destination . $fileName . '_resize800.' . $extension);
                     //crop image
                     $resize->fit(500, 500)->save($destination . $fileName . '_square500.' . $extension);
+                    $resize->fit(1502, 796)->save($destination . $fileName . '_square1502.' . $extension);
+                    $resize->fit(847, 415)->save($destination . $fileName . '_square847.' . $extension);
+                    $resize->fit(540, 270)->save($destination . $fileName . '_square540.' . $extension);
+                    $resize->fit(280, 140)->save($destination . $fileName . '_square280.' . $extension);
+
+                } else if ($type == 'video' && $url !== null) {
+                     
+                    $content = $this->getMediaInfo($url, $type);
+                    
+                    if ($content !== false) 
+                    {
+                        $content = json_encode($content);
+                    }
+                    else
+                    {
+                        $content = null;         
+                    }
+                } else {
+                    $content = null;
                 }
                 
                 $post = new Post;
                 $post->title        = $title;
                 $post->category_id  = $category_id;
-                $post->article      =  $article;
+                $post->article      = $article;
                 $post->status       = 0;
                 if (isset($mergeFileName)) {
-                    $post->image    = $mergeFileName;   
+                    $mergeFileName  = ['file' => $mergeFileName];
+                    $post->content  = json_encode($mergeFileName);   
+                } else if ($content!= null) {
+                    $post->content  = $content;
                 }
+                $post->type         = $type;
                 $post->writer_id    = $writer_id;
                 if ($post->save()) {
                     $meta['status'] = true;
@@ -411,5 +448,196 @@ class PostController extends Controller
         $meta['code'] = 200;
         $code = 200;
         return $this->response->array(compact('meta','data'))->setStatusCode($code);
+    }
+
+    public function setFeatured(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+                'id' => 'integer',
+                'admin_id' => 'integer'
+        ]);
+        if ($validator->passes()) {
+            $id = $request->id;
+            $post_id = $request->post_id;
+
+            $count = Post::Featured();
+            $count = $count->count();
+            if ($count >= 5) {
+                $meta['status'] = true;
+                $meta['message'] = "Featured Post is Full";       
+            } else {
+                try 
+                {
+                    $post = Post::findOrFail($id);
+                    $post->featured = 1;
+                    if ($post->save()) {
+                        $meta['status'] = true;
+                        $meta['message'] = 'Success creating featured post';       
+                    }
+                } 
+                catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) 
+                {
+                    $meta['status'] = false;
+                    $meta['message'] = 'Error '.$e;
+                }
+                catch (\Illuminate\Database\QueryException $e) {
+                    $meta['status'] = false;
+                    $meta['message'] = 'Error '.$e;
+                }
+
+            }
+        
+        }
+        else
+        {
+            $meta['status'] = false;
+            $meta['message'] = "Failed";
+            $meta['error'] = $validator->errors();
+            $data = null;
+        }
+        
+        $meta['code'] = 200;
+        $code = 200;
+        return $this->response->array(compact('meta','data'))->setStatusCode($code);
+    }
+
+    public function unsetFeatured(Request $request)
+    {
+        $validator = \Validator::make($request->all(), [
+                'id' => 'integer',
+                'admin_id' => 'integer'
+        ]);
+        if ($validator->passes()) {
+            $id = $request->id;
+            $post_id = $request->post_id;
+            try 
+            {
+                $post = Post::findOrFail($id);
+                $post->featured = 0;
+                if ($post->save()) {
+                    $meta['status'] = true;
+                    $meta['message'] = 'Success unset featured post';       
+                }
+            } 
+            catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) 
+            {
+                $meta['status'] = false;
+                $meta['message'] = 'Error '.$e;
+            }
+            catch (\Illuminate\Database\QueryException $e) {
+                $meta['status'] = false;
+                $meta['message'] = 'Error '.$e;
+            }        
+        }
+        else
+        {
+            $meta['status'] = false;
+            $meta['message'] = "Failed";
+            $meta['error'] = $validator->errors();
+            $data = null;
+        }
+        
+        $meta['code'] = 200;
+        $code = 200;
+        return $this->response->array(compact('meta','data'))->setStatusCode($code);
+    }
+
+    public function getFeatured()
+    {
+        try 
+        {
+            $featured = Post::Featured(); 
+
+            $meta['status'] = true;
+            $meta['message'] = "Showing all featured post";
+            // $meta['error'] = $validator->errors();
+            $data = $featured;
+        } 
+        catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) 
+        {
+            $meta['status'] = false;
+            $meta['message'] = 'Error '.$e;
+        }
+        catch (\Illuminate\Database\QueryException $e) {
+            $meta['status'] = false;
+            $meta['message'] = 'Error '.$e;
+        }
+               
+        $meta['code'] = 200;
+        $code = 200;
+        return $this->response->array(compact('meta','data'))->setStatusCode($code);
+    }
+
+    protected function getMediaInfo($mediaUrl, $type) {
+        $mediaUrl = trim($mediaUrl);
+        
+        
+        if($type == 'video') {
+            preg_match('~(?#!js YouTubeId Rev:20160125_1800)
+                # Match non-linked youtube URL in the wild. (Rev:20130823)
+                https?://          # Required scheme. Either http or https.
+                (?:[0-9A-Z-]+\.)?  # Optional subdomain.
+                (?:                # Group host alternatives.
+                  youtu\.be/       # Either youtu.be,
+                | youtube          # or youtube.com or
+                  (?:-nocookie)?   # youtube-nocookie.com
+                  \.com            # followed by
+                  \S*?             # Allow anything up to VIDEO_ID,
+                  [^\w\s-]         # but char before ID is non-ID char.
+                )                  # End host alternatives.
+                ([\w-]{11})        # $1: VIDEO_ID is exactly 11 chars.
+                (?=[^\w-]|$)       # Assert next char is non-ID or EOS.
+                (?!                # Assert URL is not pre-linked.
+                  [?=&+%\w.-]*     # Allow URL (query) remainder.
+                  (?:              # Group pre-linked alternatives.
+                    [\'"][^<>]*>   # Either inside a start tag,
+                  | </a>           # or inside <a> element text contents.
+                  )                # End recognized pre-linked alts.
+                )                  # End negative lookahead assertion.
+                [?=&+%\w.-]*       # Consume any URL (query) remainder.
+                ~ix', $mediaUrl, $matchFound);
+
+            if ($matchFound) {
+
+                $videoId = preg_replace('~(?#!js YouTubeId Rev:20160125_1800)
+                # Match non-linked youtube URL in the wild. (Rev:20130823)
+                https?://          # Required scheme. Either http or https.
+                (?:[0-9A-Z-]+\.)?  # Optional subdomain.
+                (?:                # Group host alternatives.
+                  youtu\.be/       # Either youtu.be,
+                | youtube          # or youtube.com or
+                  (?:-nocookie)?   # youtube-nocookie.com
+                  \.com            # followed by
+                  \S*?             # Allow anything up to VIDEO_ID,
+                  [^\w\s-]         # but char before ID is non-ID char.
+                )                  # End host alternatives.
+                ([\w-]{11})        # $1: VIDEO_ID is exactly 11 chars.
+                (?=[^\w-]|$)       # Assert next char is non-ID or EOS.
+                (?!                # Assert URL is not pre-linked.
+                  [?=&+%\w.-]*     # Allow URL (query) remainder.
+                  (?:              # Group pre-linked alternatives.
+                    [\'"][^<>]*>   # Either inside a start tag,
+                  | </a>           # or inside <a> element text contents.
+                  )                # End recognized pre-linked alts.
+                )                  # End negative lookahead assertion.
+                [?=&+%\w.-]*       # Consume any URL (query) remainder.
+                ~ix', '$1',
+                $mediaUrl);
+                
+                $apiPublicKey = 'AIzaSyBjID4YyCdhd1nJK1R8eFIHBSkFecjY0_w';
+                $checkUrl = 'https://www.googleapis.com/youtube/v3/videos?part=id&id=' . $videoId . '&key=' . $apiPublicKey;
+                $check = json_decode(file_get_contents($checkUrl));
+                if (count($check->items) > 0) 
+                {
+                    return (object)array(
+                        'url' => $mediaUrl,
+                        'key' => $videoId,
+                    );
+                }
+            }
+        }
+
+         // Assume some general media source
+        return false;
     }
 }

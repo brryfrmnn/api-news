@@ -15,7 +15,7 @@ class Post extends Model
     use SoftDeletes;
     use HasSlug;
     // protected $hidden = ['password','last_name', 'permissions', 'last_login', 'created_at', 'updated_at', 'pivot','deleted_at'];
-    protected $appends = ['image'];
+    protected $appends = ['content'];
     
     /**
      * Get the options for generating the slug.
@@ -101,6 +101,15 @@ class Post extends Model
         return $data;
     }
 
+    public function scopeSort($query, $sort)
+    {
+        if ($sort == 'latest') {
+            $data = $query->orderBy('id','desc');
+        } else if ($sort == 'oldest') {
+
+        }
+    }
+
     public function scopeByCategory($query,$category)
     {
         if ($category!= null) {
@@ -118,17 +127,66 @@ class Post extends Model
         return $query->where('slug',$slug)->first();
     }
 
+    public function scopeFeatured($query)
+    {
+        return $query->where('featured',1)
+                     ->where('status',1)
+                     ->get();
+    }
+
     //=============end scope======================
 
 
     //=================get attriute ===========
-    public function getImageAttribute()
+    public function getTypeAttribute($value)
     {
-        if ($this->attributes['image'] != null) {
-            return asset('storage/'.$this->attributes['image']);    
-        } else {
-            return asset('storage/default.gif');    
+        if($this->attributes['type'] === 1)
+            return "gallery";
+        elseif($this->attributes['type'] === 2)
+            return "video";
+    }
+
+    public function setTypeAttribute($values)
+    {
+        if($values == 'image')
+            $this->attributes['type'] = 1;
+        else if($values == 'video')
+            $this->attributes['type'] = 2;
+    }
+
+    public function getContentAttribute()
+    {
+        if ($this->attributes['type'] == 1) {
+            $image = json_decode($this->attributes['content']);
+            // dd($image);
+            $data = [];
+            if (count($image) > 0) {
+                $images = ['image800','image500', 'image1502', 'image847', 'image540','image280'];
+                foreach ($images as $img) {
+                    $thumb = explode('.', $image->file);
+                    $thumb[0] = $thumb[0].'_'.$img;
+                    
+                    $mergeImage = implode('.', $thumb);
+                    $image->$img = asset('storage/'.$mergeImage);
+                }
+                
+                /*$thumb = explode('.', $image[0]->file);
+                $thumb[0] = $thumb[0].'_square500';
+                $thumb = implode('.', $thumb);
+                $content['thumb'] = $thumb;*/
+            } else {
+               $images = ['image800','image500', 'image1502', 'image847', 'image540','image280'];
+                foreach ($images as $img) {
+                    
+                    $image->$img = asset('storage/default.gif');
+                }
+            }
+            $content = $image;
+
+            return $content;
         }
-        
+        else
+            $content =  json_decode($this->attributes['content']);      
+        return $content;
     }
 }
