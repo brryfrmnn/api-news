@@ -1,0 +1,9 @@
+{
+	"name": "Comment",
+	"slug": "comment",
+	"namespace": "Comment",
+	"version": "1.0",
+	"author": " ",
+	"license": "MIT",
+	"description": "This is the description for the Comment module."
+}

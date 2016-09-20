@@ -1,0 +1,9 @@
+{
+	"name": "Post",
+	"slug": "post",
+	"namespace": "Post",
+	"version": "1.0",
+	"author": " ",
+	"license": "MIT",
+	"description": "This is the description for the Post module."
+}

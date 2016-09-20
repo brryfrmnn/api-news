@@ -156,6 +156,12 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /*tambahan*/
+        Caffeinated\Modules\ModulesServiceProvider::class,
+        Dingo\Api\Provider\LaravelServiceProvider::class,
+        Centaur\CentaurServiceProvider::class,
+        Intervention\Image\ImageServiceProvider::class,
+
     ],
 
     /*
@@ -202,6 +208,12 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+        /*tambahan*/
+        'Module' => Caffeinated\Modules\Facades\Module::class,
+        'DingoAPI' => Dingo\Api\Facade\API::class,
+        'DingoRoute' => Dingo\Api\Facade\Route::class,
+        'Image' => Intervention\Image\Facades\Image::class,
+        
     ],
 
 ];
