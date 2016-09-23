@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Laravel</title>
+        <title>Nixia</title>
+        <meta name="description" content="Phoenix Indonesia IT Consultant nixia.id">
 
         <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
 
@@ -33,12 +34,17 @@
             .title {
                 font-size: 96px;
             }
+            .ket {
+                text-transform: uppercase;
+                font-size: 26px;
+            }
         </style>
     </head>
     <body>
         <div class="container">
             <div class="content">
-                <div class="title">Laravel 5</div>
+                <div class="title">NIXIA</div>
+                <div class="ket">Phoenix Indonesia</div>
             </div>
         </div>
     </body>
