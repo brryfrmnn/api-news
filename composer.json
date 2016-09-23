@@ -11,7 +11,8 @@
          "dingo/api": "1.0.*@dev",
          "srlabs/centaur": "2.*",
         "spatie/laravel-sluggable": "^1.2",
-        "intervention/image": "^2.3"
+        "intervention/image": "^2.3",
+        "predis/predis": "@stable"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

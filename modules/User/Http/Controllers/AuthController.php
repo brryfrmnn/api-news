@@ -7,7 +7,6 @@ use Sentinel;
 // use Mailgun;
 use Reminder;
 use Centaur\AuthManager;
-
 use Dingo\Api\Routing\Helpers;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
@@ -165,6 +164,7 @@ class AuthController extends Controller
 
                 $role = \Sentinel::findRoleBySlug($request->role);
                 $role->users()->attach($result->user);
+                // event(new UserRegisteredEvent($result->user));
                 /*Mailgun::send(
                     'centaur.email.welcome',
                     ['code' => $activation, 'email' => $email],
