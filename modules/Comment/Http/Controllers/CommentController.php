@@ -7,15 +7,22 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Dingo\Api\Routing\Helpers;
 use Modules\Comment\Model\Comment;
+use Centaur\AuthManager;
 
 class CommentController extends Controller
 {
+    protected $authManager;
     use Helpers;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+    public function __construct(AuthManager $authManager)
+    {
+        $this->authManager = $authManager;
+    }
+
     public function index(Request $request)
     {
         $validator = \Validator::make($request->all(), [
@@ -39,7 +46,7 @@ class CommentController extends Controller
             if ($q != null) {
                 $comment->search($q,$result_type);
             }
-            
+            $comment->orderBy('id','desc');
             $comment = $comment->paginate($offset)->appends($request->input());
             if ($include_user) {
                 $comment->load('user');
@@ -91,15 +98,58 @@ class CommentController extends Controller
         $validator = \Validator::make($request->all(), [
                 'comment' => 'required|string',
                 'post_id' => 'required|integer|exists:posts,id',
-                'user_id' => 'required|integer|exists:users,id',
+                'email' => 'required|string',
+                'full_name' => 'required|string',
                 'admin_id' => 'integer',
         ]);
         if ($validator->passes()) {
             $comment      = $request->comment;
             $post_id      = $request->post_id;
-            $user_id      = $request->user_id;
             $admin_id     = $request->admin_id;
-            
+            $email        = $request->email;
+            $full_name    = $request->full_name;
+
+            $name = explode(' ', $full_name);
+            $first_name = $name[0];
+            $last_name = '';
+            if(count($name) > 1) {
+                    unset($name[0]);
+                    $last_name = implode(' ', $name);
+            } 
+
+            $credential = [
+                    'email' => $email
+            ];
+            $user = \Sentinel::findByCredentials($credential);
+            // dd($user@);
+            if ($user==null) {
+                $credentials = [
+                    'email' => trim(strtolower($email)),
+                    'password' => 'subscriber',
+                    'username' => trim(strtolower(str_replace(' ', '_', $email))),
+                    'first_name' => $first_name,
+                    'last_name' => $last_name,
+                ];
+                // // Attempt the Register
+                $result = $this->authManager->register($credentials,true);
+                if ($result->isFailure()) {
+                    //belum ada apa2
+                    $result->setMessage('Registration Failed. .'); 
+                } else {
+                    $role = \Sentinel::findRoleBySlug('subscriber');
+                    $role->users()->attach($result->user);
+                    //define user_id, for comment
+                    $user_id = $result->user->id;
+                    // event(new UserRegisteredEvent($result->user));
+                    // Ask the user to check their email for the activation link
+                    $result->setMessage('Registration complete. .');
+                    // There is no need to send the payload data to the end user
+                    $result->clearPayload();
+
+                }
+            } else {
+                $user_id = $user->id;
+            }
             try 
             {
                                 
