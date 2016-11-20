@@ -13,7 +13,7 @@
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
-	$api->group(['middleware' => 'cors'], function(){
+	$api->group(['middleware' => 'cors'], function($api){
 	    $api->get('check', 'Modules\User\Http\Controllers\UserController@check');
 	    $api->post('/login', '\Modules\User\Http\Controllers\AuthController@postLogin');
 		$api->post('/register', '\Modules\User\Http\Controllers\AuthController@postRegister');
