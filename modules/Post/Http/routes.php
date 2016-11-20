@@ -13,7 +13,7 @@
 
 $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) {
-	$api->group(['prefix'=>'post'], function($api){
+	$api->group(['prefix'=>'post', 'middleware' => 'cors'], function($api){
 		$api->get('/', 'Modules\Post\Http\Controllers\PostController@index');
 	    $api->post('/', 'Modules\Post\Http\Controllers\PostController@store');
 	    $api->delete('/', 'Modules\Post\Http\Controllers\PostController@destroy');

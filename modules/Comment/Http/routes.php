@@ -13,7 +13,7 @@
 
 $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', function ($api) {
-	$api->group(['prefix'=>'comment'], function($api){
+	$api->group(['prefix'=>'comment', 'middleware' => 'cors'], function($api){
 		$api->get('/', 'Modules\Comment\Http\Controllers\CommentController@index');
 	    $api->post('/', 'Modules\Comment\Http\Controllers\CommentController@store');
 	    $api->delete('/', 'Modules\Comment\Http\Controllers\CommentController@destroy');
