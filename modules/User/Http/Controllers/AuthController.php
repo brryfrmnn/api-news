@@ -119,20 +119,10 @@ class AuthController extends Controller
             $name = explode(' ', $name);
             $first_name = $name[0];
             $last_name = '';
-            /*$referral = User::where('code',$referral_code);
-            if ($referral->count()>0) {
-                $referral = $referral->first();
-                $referral_id = $referral->id;
-            }
-            else
-            {
-                $referral_id = null;
-            }*/
-
             if(count($name) > 1) {
                     unset($name[0]);
                     $last_name = implode(' ', $name);
-                } 
+            } 
 
             // $code = substr(strtoupper($username),0,1);
                 // $code = $this->generateCode($username);

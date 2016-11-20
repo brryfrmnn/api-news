@@ -11,7 +11,7 @@
 |
 */
 
-Route::get('/', function () {
+Route::get('/halaman_awal', function () {
     return view('welcome');
 });
 Route::get('/admin', function () {
