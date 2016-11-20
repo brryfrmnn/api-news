@@ -22,7 +22,7 @@ class User extends Sentinel
 
     use SoftDeletes;
 
-    protected $hidden = ['password','last_name', 'permissions', 'last_login', 'created_at', 'updated_at', 'pivot','deleted_at'];
+    protected $hidden = ['password','first_name','last_name', 'permissions', 'last_login', 'created_at', 'updated_at', 'pivot','deleted_at'];
     protected $appends = ['full_name'];
     
     /**

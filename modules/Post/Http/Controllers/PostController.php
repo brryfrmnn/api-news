@@ -214,12 +214,12 @@ class PostController extends Controller
             try 
             {
                 if (is_numeric($id)) {
-                    $post = Post::findOrFail($id);
+                    $post = Post::with('category','writer','editor','admin')->findOrFail($id);
                     $meta['status'] = true;
                     $meta['message'] = "Success showing post ID #".$id;
                     $data = $post;       
                 } else if (is_string($id)) {
-                    $post = Post::findBySlug($id);
+                    $post = Post::with('category','writer','editor','admin')->findBySlug($id);
                     $meta['status'] = true;
                     $meta['message'] = "Success showing post";
                     $data = $post;
