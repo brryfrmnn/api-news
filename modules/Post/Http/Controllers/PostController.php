@@ -35,7 +35,7 @@ class PostController extends Controller
             $filter         = $request->filter;
             $sort           = $request->sort;
             
-            $post = Post::filter($filter);
+            $post = Post::with('category','writer','editor','admin')->filter($filter);
             if ($q!=null) {
                 $post->search($q,$result_type);
             }

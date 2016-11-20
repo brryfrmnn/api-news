@@ -13,7 +13,7 @@ class Category extends Model
     protected $table = 'categories';
     use SoftDeletes;
     use HasSlug;
-    // protected $hidden = ['password','last_name', 'permissions', 'last_login', 'created_at', 'updated_at', 'pivot','deleted_at'];
+    protected $hidden = ['admin_id','deleted_at'];
     // protected $appends = ['full_name'];
     
     /**

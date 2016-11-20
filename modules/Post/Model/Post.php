@@ -14,7 +14,7 @@ class Post extends Model
     protected $table = 'posts';
     use SoftDeletes;
     use HasSlug;
-    // protected $hidden = ['password','last_name', 'permissions', 'last_login', 'created_at', 'updated_at', 'pivot','deleted_at'];
+    protected $hidden = ['category_id','admin_id','editor_id','writer_id'];
     protected $appends = ['content'];
     
     /**
