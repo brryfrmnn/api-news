@@ -629,11 +629,26 @@ class PostController extends Controller
                 $apiPublicKey = 'AIzaSyBjID4YyCdhd1nJK1R8eFIHBSkFecjY0_w';
                 $checkUrl = 'https://www.googleapis.com/youtube/v3/videos?part=id&id=' . $videoId . '&key=' . $apiPublicKey;
                 $check = json_decode(file_get_contents($checkUrl));
+                $thumb1 = 'http://img.youtube.com/vi/'.$videoId.'/1.jpg';
+                $thumb2 = 'http://img.youtube.com/vi/'.$videoId.'/2.jpg';
+                $thumb3 = 'http://img.youtube.com/vi/'.$videoId.'/3.jpg';
+                $default= 'http://img.youtube.com/vi/'.$videoId.'/default.jpg';
+                $large  = 'http://img.youtube.com/vi/'.$videoId.'/0.jpg';
+                $hd     = 'http://img.youtube.com/vi/'.$videoId.'/hqdefault.jpg';
+                $hr     = 'http://img.youtube.com/vi/'.$videoId.'/maxresdefault.jpg';
+
                 if (count($check->items) > 0) 
                 {
                     return (object)array(
                         'url' => $mediaUrl,
                         'key' => $videoId,
+                        'thumb1' => $thumb1,
+                        'thumb2' => $thumb2,
+                        'thumb3' => $thumb3,
+                        'default' => $default,
+                        'large' => $large,
+                        'hd' => $hd,
+                        'hr' => $hr,
                     );
                 }
             }
