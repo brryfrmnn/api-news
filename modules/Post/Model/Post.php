@@ -140,9 +140,9 @@ class Post extends Model
     //=================get attriute ===========
     public function getTypeAttribute($value)
     {
-        if($this->attributes['type'] === 1)
+        if($this->attributes['type'] == 1)
             return "gallery";
-        elseif($this->attributes['type'] === 2)
+        elseif($this->attributes['type'] == 2)
             return "video";
     }
 
