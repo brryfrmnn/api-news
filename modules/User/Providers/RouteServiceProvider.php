@@ -36,8 +36,9 @@ class RouteServiceProvider extends ServiceProvider
 	 */
 	public function map(Router $router)
 	{
-		$router->group(['namespace' => $this->namespace], function($router)
-		{
+		$router->group(['namespace' => $this->namespace,
+			'middleware' => ['web','cors']
+		], function($router) {
 			require (config('modules.path').'/User/Http/routes.php');
 		});
 	}

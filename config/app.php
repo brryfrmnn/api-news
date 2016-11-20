@@ -161,6 +161,7 @@ return [
         Dingo\Api\Provider\LaravelServiceProvider::class,
         Centaur\CentaurServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
 
     ],
 

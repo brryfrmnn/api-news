@@ -37,7 +37,7 @@ class RouteServiceProvider extends ServiceProvider
 	{
 		$router->group([
 			'namespace'  => $this->namespace,
-			'middleware' => ['web']
+			'middleware' => ['web','cors']
 		], function($router) {
 			require (config('modules.path').'/Post/Http/routes.php');
 		});

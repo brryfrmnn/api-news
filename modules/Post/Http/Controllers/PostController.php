@@ -168,6 +168,7 @@ class PostController extends Controller
                 if ($post->save()) {
                     $meta['status'] = true;
                     $meta['message'] = "Success creating post";    
+                    $data = $post;
                 }
                 
             } 
@@ -321,7 +322,8 @@ class PostController extends Controller
                 $post->writer_id    = $writer_id;
                 if ($post->save()) {
                     $meta['status'] = true;
-                    $meta['message'] = "Success updating post";    
+                    $meta['message'] = "Success updating post";  
+                    $data = $post;  
                 }
                 
             } 

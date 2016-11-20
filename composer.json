@@ -12,7 +12,8 @@
          "srlabs/centaur": "2.*",
         "spatie/laravel-sluggable": "^1.2",
         "intervention/image": "^2.3",
-        "predis/predis": "@stable"
+        "predis/predis": "@stable",
+        "barryvdh/laravel-cors": "^0.8.2"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

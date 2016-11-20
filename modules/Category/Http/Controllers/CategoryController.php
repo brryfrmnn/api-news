@@ -64,7 +64,8 @@ class CategoryController extends Controller
                 $category->admin_id     = $admin_id;
                 if ($category->save()) {
                     $meta['status'] = true;
-                    $meta['message'] = "Success creating category";    
+                    $meta['message'] = "Success creating category";  
+                    $data = $category;  
                 }
             } 
             catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) 
@@ -189,7 +190,8 @@ class CategoryController extends Controller
                 $category->admin_id     = $admin_id;
                 if ($category->save()) {
                     $meta['status'] = true;
-                    $meta['message'] = "Success updating category";    
+                    $meta['message'] = "Success updating category";   
+                    $data = $category;
                 }
             } 
             catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) 
