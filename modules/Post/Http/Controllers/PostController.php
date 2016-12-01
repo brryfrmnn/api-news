@@ -548,7 +548,7 @@ class PostController extends Controller
     {
         try 
         {
-            $featured = Post::Featured(); 
+            $featured = Post::with('admin','writer','editor','category')->Featured(); 
 
             $meta['status'] = true;
             $meta['message'] = "Showing all featured post";
