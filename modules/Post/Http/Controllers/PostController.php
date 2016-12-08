@@ -56,6 +56,8 @@ class PostController extends Controller
             $meta['last']=$post->lastPage();
             $meta['next']=$post->nextPageUrl();
             $meta['prev']=$post->previousPageUrl();
+            $meta['from'] = $post->firstItem();
+            $meta['to'] = $post->lastItem();
             $data = $post->all();    
         }
         else
@@ -128,7 +130,7 @@ class PostController extends Controller
                     $resize = \Image::make(asset('storage/'.$mergeFileName));
                     $resize->resize(800, null, function ($constraint) {
                         $constraint->aspectRatio();
-                    })->save($destination . $fileName . '_resize800.' . $extension);
+                    })->save($destination . $fileName . '_square800.' . $extension);
                     //crop image
                     $resize->fit(500, 500)->save($destination . $fileName . '_square500.' . $extension);
                     $resize->fit(1502, 796)->save($destination . $fileName . '_square1502.' . $extension);

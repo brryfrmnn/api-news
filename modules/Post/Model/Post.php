@@ -161,7 +161,7 @@ class Post extends Model
             // dd($image);
             $data = [];
             if (count($image) > 0) {
-                $images = ['image800','image500', 'image1502', 'image847', 'image540','image280'];
+                $images = ['square800','square500', 'square1502', 'square847', 'square540','square280'];
                 foreach ($images as $img) {
                     $thumb = explode('.', $image->file);
                     $thumb[0] = $thumb[0].'_'.$img;
@@ -175,7 +175,7 @@ class Post extends Model
                 $thumb = implode('.', $thumb);
                 $content['thumb'] = $thumb;*/
             } else {
-               $images = ['image800','image500', 'image1502', 'image847', 'image540','image280'];
+               $images = ['square800','square500', 'square1502', 'square847', 'square540','square280'];
                 foreach ($images as $img) {
                     
                     $image->$img = asset('storage/default.gif');
